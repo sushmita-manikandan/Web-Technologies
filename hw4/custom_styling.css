@@ -1,0 +1,113 @@
+      i.material-icons 
+      {
+        top: -1px;
+        vertical-align: middle;
+        position: relative;
+      }
+      .btn-light
+      {
+        background-color: transparent;
+        border-color: #cccccc;
+      }
+      tr.selected 
+      {
+          background-color: #FFCF8B
+      }
+      .control-label.col-sm-2
+      {
+       text-align: left;
+      }
+      .form-group.required .control-label:after
+      {
+         content:"*";
+         color:red;
+      }
+      tr.upco_border td 
+      {
+          border: 1px solid lightgray;
+      }
+      #list_auto
+      {
+      cursor:pointer;
+      }
+      #list_order:hover
+      {
+      text-decoration:underline;
+      color:blue;
+      }
+      .upco_table
+      {
+      border:none;
+      border-collapse: separate;
+      border-spacing: 15px;
+      transition: ease-in-out 0.5s;
+      }
+      .btn_width
+      {
+        width:100px;
+      }
+      .fa-star
+      {
+        color:yellow;
+      }
+      #test 
+      {
+        text-overflow: ellipsis;
+        display: block;
+        width: 400px;
+        overflow: hidden;
+        white-space: nowrap;
+      }
+      #Details.ng-hide 
+      {
+       height:0px;
+       width:auto;
+       top:0;
+       left:-1780px;
+       position: relative;
+       transition: all linear 0s;
+      }
+      #Display_results.ng-hide 
+      {
+       height:0px;
+       width:auto;
+       top:0;
+       left:1780px;
+       position: relative;
+       transition: all linear 0s; 
+      }
+      .detail_positioning 
+      {
+        width:auto;
+        height:auto;
+        top: 0;
+        left: 0;
+        transition: all linear 0.5s;
+        position: relative;
+      }
+      .list_positioning 
+      {
+        width:auto;
+        height:auto;
+        top: 0;
+        left: 0;
+        transition: all linear 0.5s;
+        position: relative;
+      }
+      #upco_artist:link
+      {
+      text-decoration:none;
+      color:#FF5733;
+      }
+      #upco_artist:hover
+      {
+      text-decoration:none;
+      }
+      #upco_name:hover
+      {
+      text-decoration:underline;
+      }
+      #upco_name:link
+      {
+      color:blue;
+      }

@@ -1,0 +1,448 @@
+<html>
+<head>
+<title>Event Ticket Search</title>
+<meta charset="utf-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular-animate.js"></script>
+
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<script src='https://cdn.gitcdn.link/cdn/angular/bower-material/v1.1.10/angular-material.js'></script>
+<script src="http://maps.googleapis.com/maps/api/js?key=AIzaSyAmyiqlzeWLjsBUxhF3sYRWST4IXA4-7_Q&libraries=placeses,visualization,drawing,geometry,places"></script>
+	
+<script src="http://jvandemo.github.io/angularjs-google-maps/dist/angularjs-google-maps.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<script src="https://rawgit.com/allenhwkim/angularjs-google-maps/master/build/scripts/ng-map.js"></script>
+<script src="angular_functionality.js"></script>
+
+<script src = "https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-aria.min.js"></script>
+<script src = "https://ajax.googleapis.com/ajax/libs/angular_material/1.0.0/angular-material.min.js"></script>      
+      
+</head>
+
+
+<body ng-app="form_app" ng-controller = "body_controller"><br>
+
+<div class="container bg-light" >
+<h2 class="text-center"><br>Entertainment Event Ticket Search</h2><br>
+<form name="search_form" class="form-horizontal bg-light"  ng-submit="search_function()">
+
+
+<div class="form-group row justify-content-left required">
+<label for="Keyword" class="control-label col-sm-2 offset-sm-2">Keyword</label>
+<div class="col-sm-6">
+<input type="text" name="keyword"  class="form-control" placeholder="Enter Artist, Team or Event Name (eg. Lakers)" id="Keyword" ng-required="1" ng-model="user.Keyword" ng-keyup="auto()" required>
+<ul class="list-group" ng-model="hide_this" ng-hide="hide_this">
+<li id = "list_auto" class="list-group-item list-group-item-action" ng-repeat="x in get_auto_details" ng-click="fill_text(x.name)">{{x.name}}</li>
+</ul>
+
+<span style="color:red" ng-show="search_form.keyword.$touched  && search_form.keyword.$invalid">Please enter a keyword</span>
+</div>
+</div>
+
+
+
+<div class="form-group row justify-content-left">
+<label for="Category" class="control-label col-sm-2 offset-sm-2">Category</label>
+<div class="col-sm-4">
+<select class="form-control" id="Category" ng-model="user.Category">
+                    
+<option value="Default">All</option>
+<option value="music">Music</option>
+<option value="sports">Sports</option>
+<option value="art">Arts & Theatre</option>
+<option value="film">Film</option>
+<option value="miscellaneous">Miscellaneous</option>           
+</select>
+</div>
+</div>
+
+
+<div class="form-group row justify-content-left">
+<label for="Distance" class="control-label col-sm-2 offset-sm-2">Distance</label>
+<div class="col-sm-2">
+<input type="text" class="form-control" id="Distance" placeholder="10" name="Distance" ng-model="user.Distance">
+</div>
+<div class="col-sm-2">
+<select class="form-control"  ng-model="user.Distance1">
+<option value="miles">Miles</option>
+<option value="kilometers">Kilometers</option></select>
+</div>
+</div>
+
+        
+
+<div class="form-group row justify-content-left required">
+<label for="current_location" class="control-label col-sm-2 offset-sm-2">From</label>
+<div class="col-sm-4">
+<label><input type="radio"  class="" name="location" id="current_location" value="current_location" ng-model="location" ng-checked="1">Current location</label>
+<label class="col-sm-2" for="current_location"></label>
+<label><input type="radio"  class="" name="location" id="other_location" value="other_location" ng-model="location">Other, Please specify:</label>
+</div>
+</div>
+
+<div class="form-group row justify-content-left">
+<label for="current_location" class="control-label col-sm-2 offset-sm-2"></label>
+<div class="col-sm-6">
+<input type="text" class="form-control" placeholder="Enter a location" id="other_location_t" ng-disabled="location == undefined||location=='current_location'"  name="other_location_T"  ng-model="other_location_t" ng-required="location != undefined && location!='current_location'">
+<span style="color:red" ng-show="location=='other_location' && (search_form.other_location_T.$touched && search_form.other_location_T.$invalid)">Please enter a location</span>
+</div>
+</div>
+
+
+<div class="form-group row">
+<div class="control-label offset-sm-2 mb-4">
+<button type="submit" class="btn btn-primary"  ng-disabled="user.Keyword=='' || (location=='other_location' && !other_location_t.length )|| (search_form.keyword.$dirty && search_form.keyword.$invalid) " >
+<i class="material-icons">search</i> Search</button>
+<button type="reset" class="btn btn-default" ng-click="reset()">
+<i class="material-icons">clear_all</i>Clear</button>
+</div>
+</div>
+</form>
+</div>
+
+
+<div class="container text-center">
+<button id="result_button" class="btn btn-primary" onclick="results_change()" ng-click="favor_to_results()">Results</button>
+<button id="favor_button"  class="btn btn-link" onclick="favorites_change()" ng-click="results_to_favor()">Favorites</button><br>
+<script>
+function results_change()
+{
+   var results_x = document.getElementById('result_button').classList;
+   var favor_x = document.getElementById('favor_button').classList;
+   if(favor_x.contains('btn-primary'))
+   {
+      favor_x.remove("btn-primary");
+      favor_x.add("btn-link");
+      results_x.remove("btn-link");
+      results_x.add("btn-primary");
+   }
+}
+function favorites_change()
+{
+   var results_x = document.getElementById('result_button').classList;
+   var favor_x = document.getElementById('favor_button').classList;
+   if(results_x.contains('btn-primary'))
+	{
+	   results_x.remove("btn-primary");
+	   results_x.add("btn-link");
+       favor_x.remove("btn-link");
+       favor_x.add("btn-primary");
+    }
+}
+</script>
+</div>
+
+
+
+	
+<div  id="Display_results" class="container list_positioning" ng-hide="!(show_detail==false)">
+
+
+
+<div class="progress mt-5" ng-show="progress">
+<div class="progress-bar progress-bar-striped progress-bar-animated active" style="width:50%"></div>
+</div>
+
+
+<div class="container" ng-show="table_statustext=='INVALID_REQUEST'" >
+	<div class="alert alert-danger">
+        Failed to get search results. Invalid Request
+    </div>
+</div>
+
+<div class="container" ng-show="check_empty_table">
+  <div class="alert alert-warning">
+        No records.
+  </div>
+</div>
+
+<!---------------------------------------------------------------------------------------------------------------------------------------------->
+
+<div class="container pt-1" ng-show="table_content &&table_content.length!=0">
+
+<div class="container" ng-show="embed==undefined">
+   <div class="alert alert-warning">
+     No records.
+   </div>
+</div>
+
+
+<div class="container">
+   <div class="row justify-content-end">
+      <button class="btn btn-light"  ng-disabled="enableDetailsButton==false" ng-click="recent_detail()">Details<i class="material-icons">keyboard_arrow_right</i></button>
+    </div>
+</div>
+
+
+	
+<table class="table table-hover">
+
+<tr>
+<th>#</th>
+<th width=120px>Date</th>
+<th>Event</th>
+<th width= 200px>Category</th>
+<th>Venue info</th>
+<th>Favorite</th>
+</tr>
+
+<tr class = "highlight" ng-repeat="x in table_content|orderBy : 'dates.start.localDate' ">
+				
+<td><strong>{{$index+1}}</strong></td>				
+<td>{{x.dates.start.localDate}}</td>
+<td><a href="" ng-click="enableDetails(x);recent_detail()" id="test" data-toggle="tooltip" data-placement="bottom">{{x.name}}</a></td>
+<script>
+$("tr.highlight").click(function(){
+    $(this).addClass("selected").siblings().removeClass("selected");
+});
+</script>
+					
+<td>{{x.classifications[0].genre.name}}-{{x.classifications[0].segment.name}}</td>
+					
+<td>{{x._embedded.venues[0].name}}</td>
+<td><button class="btn btn-light" ng-click="set_favor(x)"><i id="{{x.name}}"class="fa fa-star-o"></i></button></td>
+</tr>			
+</table>
+</div>
+
+</div>
+
+
+<div class="container" ng-show="show_detail==false && show_favor==true" id="favorite">
+<div class="container" ng-show="!check_favor" >
+<div class="alert alert-warning">
+ No records.
+</div>
+</div>
+
+
+<div class="container pt-1"  ng-show="check_favor">
+<table class="table table-hover">
+<tr>
+<th>#</th>
+<th>Date</th>
+<th>Event</th>
+<th>Category</th>
+<th>Venue info</th>
+<th>Favorite</th>
+</tr>
+<tr ng-repeat="x in favor" ng-if="favor!=undefined" >
+<td><strong>{{$index+1}}</strong></td>
+<td>{{x.dates.start.localDate}}</td>
+<td><a href="" ng-click="enableDetails(x);recent_detail()">{{x.name}}</a></td>
+<td>{{x.classifications[0].genre.name}}-{{x.classifications[0].segment.name}}</td>
+<td>{{x._embedded.venues[0].name}}</td>
+<td><button class="btn btn-light" ng-click="remove_favor(x,$index+1)" ><i class="material-icons">delete</i></button></td>
+</tr>
+</table>
+</div>
+</div>
+
+
+<div class="container detail_positioning" ng-hide="show_detail==false" id="Details">
+<h2 class="d-flex justify-content-center mt-3">{{detailsEvent.name}}</h2>
+<div class="row d-flex justify-content-end">
+<button class="btn btn-light mr-auto p-2" ng-click="list_function()"><i class="material-icons">keyboard_arrow_left</i>List</button>
+<a href="{{twitter_text}}" target="_blank"><img src="http://csci571.com/hw/hw8/Images/Twitter.png" height=50 width=50></a>
+<button class="btn btn-light" ng-click="set_favor(current_x);" onclick="fav_star()" > <i id="check_star" class="fa fa-star-o"></i> </button>
+<script>
+function fav_star()
+{
+if(document.getElementById("check_star").classList.contains("fa-star-o"))
+{
+document.getElementById("check_star").classList.remove("fa-star-o");
+document.getElementById("check_star").classList.add("fa-star");
+}
+else
+{
+document.getElementById("check_star").classList.remove("fa-star");
+document.getElementById("check_star").classList.add("fa-star-o");
+}
+}
+</script>      
+</div>
+
+
+<ul class="nav nav-tabs justify-content-end" role="tablist">
+<li class="nav-item">
+<a class="nav-link active" data-toggle="tab" href="#Event">Event</a>
+</li>
+<li class="nav-item">
+<a class="nav-link" data-toggle="tab" href="#Artist" ng-click="google_photos_func()">Artist/Teams</a>
+</li>
+<li class="nav-item">
+<a class="nav-link" data-toggle="tab" href="#Venue">Venue</a>
+</li>
+<li class="nav-item">
+<a class="nav-link" data-toggle="tab" href="#upco" ng-click="songkick()">Upcoming Events</a>
+</li>
+</ul>
+	
+<div class="tab-content">
+
+
+<div id="Event" class="container tab-pane active"><br>
+<table ng-show="show_detail" class="table table-striped">
+<tr><th  style="">Artist / Team(s) </th><td style="">{{detailsEvent._embedded.attractions[0].name }} | {{detailsEvent._embedded.attractions[1].name}}</td></tr>
+<tr ng-show="detailsEvent._embedded.venues[0].name!=undefined"><th class="">Venue</th><td class="">{{detailsEvent._embedded.venues[0].name}}</td></tr>
+<tr ng-show="detailsEvent.dates.start.localTime!=undefined"><th class="" style="width: 25%;">Time</th><td class="" style="width: 75%;">{{detailsEvent.dates.start.localDate | date}} {{detailsEvent.dates.start.localTime}}</td></tr>
+<tr ng-show="detailsEvent.classifications!=undefined"><th class="">Category</th><td class="">{{detailsEvent.classifications[0].genre.name}} | {{detailsEvent.classifications[0].segment.name}}</td></tr>
+<tr ng-show="detailsEvent.priceRanges!=undefined"><th class="">Price Range</th><td class="">${{detailsEvent.priceRanges[0].min}} ~ ${{detailsEvent.priceRanges[0].max}}</td></tr>
+<tr ng-show="detailsEvent.dates!=undefined"><th class="">Ticket Status</th><td class="">{{detailsEvent.dates.status.code}}</td></tr>
+<tr ng-show="detailsEvent.url!=undefined"><th class="">Buy Ticket At</th><td class=""><a href="{{detailsEvent.url}}" target="_blank">Ticketmaster</a></td></tr>
+<tr ng-show="detailsEvent.seatmap!=undefined&&detailsEvent.seatmap.staticUrl!=undefined"><th class="">Seat Map</th><td class=""> <a href="" data-toggle="modal" data-target="#seatMap_Modal"> View Seat Map here</a></td></tr>
+</table>
+</div>
+
+
+<div class="modal fade" id="seatMap_Modal" tabindex="-1" role="dialog" aria-labelledby="seatMap_Modal_label" aria-hidden="true">
+<div class="modal-dialog" role="document">
+<div class="modal-content">
+<div class="modal-header">
+<h5 class="modal-title" id="seatMap_Modal_label">View Seat Map</h5>
+<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+<span aria-hidden="true">&times;</span>
+</button>
+</div>
+<div class="modal-body">
+<center><p><a ng-show="detailsEvent.seatmap.staticUrl!=undefined" href="{{detailsEvent.seatmap.staticUrl}}" target="_blank"><img ng-show="detailsEvent.seatmap.staticUrl!=undefined" src="{{detailsEvent.seatmap.staticUrl}}" height=350 width=350></a></p></center>
+</div>
+<div class="modal-footer">
+<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+</div>
+</div>
+</div>
+</div>
+
+<div id="Artist1" class="container tab-pane active" ng-click="check_artist_team()"><br>
+<table ng-show="spotify_check" class="table table-striped">
+<tr><th ng-show="spot_data[0].name!=undefined" style="">Name</th><td style="">{{spot_data[0].name}}</td></tr>
+<tr ng-show="spot_data[1].followers.total!=undefined"><th class="">Followers</th><td class="">{{spot_data[1].followers.total!=undefined}}</td></tr>
+<tr ng-show="spot_data[0].popularity!=undefined"><th class="" style="width: 25%;">Popularity</th><td class="" style="width: 75%;">{{spot_data[0].popularity}}</td></tr>
+<tr ng-show="spot_data[1].external_urls!=undefined"><th class="">Check at</th><td class="">{{spot_data[1].external_urls}}</td></tr>               
+</table>
+</div>
+
+<div id="Artist" class="container tab-pane fade"><br>
+<h3 class="d-flex justify-content-center mt-3">{{detailsEvent._embedded.attractions[0].name}}
+</h3>
+<div class="container" ng-show="google_check">
+<div class="alert alert-warning">
+No records.
+</div></div>
+<div class="d-flex justify-content-center mt-3" ng-repeat="y in detailsEvent._embedded.attractions">
+<div class="card-columns p-2" ng-show="get_google_details">
+<div ng-if="$index==0">
+				
+<div class="card" ng-repeat="x in get_google_details[0]" >
+<a href="{{x.link}}" target="_blank">
+<img class="card-img" ng-src="{{x.link}}" >
+</a>
+</div>
+</div>
+				
+<div ng-if="$index==1">
+<h3 class="d-flex justify-content-center mt-3">{{detailsEvent._embedded.attractions[1].name}}</h3>
+<div class="card" ng-repeat="x in get_google_details[1]" >
+<a href="{{x.link}}" target="_blank">
+<img class="card-img" ng-src="{{x.link}}" >
+</a>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div id="Venue" class="container tab-pane fade"><br>
+
+<h2 class="d-flex justify-content-center mt-3">{{detailsEvent._embedded.venues[0].name}}</h2>
+<table ng-show="show_detail" class="table table-striped">
+<tr ng-show="detailsEvent._embedded.venues[0].address!=undefined"><th  style="">Address </th><td style="">{{detailsEvent._embedded.venues[0].address.line1}}</td></tr>
+<tr ng-show="detailsEvent._embedded.venues[0].name!=undefined"><th class="">City</th><td class="">{{detailsEvent._embedded.venues[0].city.name}}, {{detailsEvent._embedded.venues[0].state.name}}</td></tr>
+<tr ng-show="detailsEvent._embedded.venues[0].boxOfficeInfo!=undefined"><th class="" style="width: 25%;">Phone Number</th><td class="" style="width: 75%;">{{detailsEvent._embedded.venues[0].boxOfficeInfo.phoneNumberDetail}}</td></tr>
+<tr ng-show="detailsEvent._embedded.venues[0].boxOfficeInfo!=undefined"><th class="">Open Hours</th><td class="">{{detailsEvent._embedded.venues[0].boxOfficeInfo.openHoursDetail}}</td></tr>
+<tr ng-show="detailsEvent._embedded.venues[0].generalInfo!=undefined"><th class="">General Rule</th><td class="">{{detailsEvent._embedded.venues[0].generalInfo.generalRule}}</td></tr>
+<tr ng-show="detailsEvent._embedded.venues[0].generalInfo!=undefined"><th class="">Child Rule</th><td class="">{{detailsEvent._embedded.venues[0].generalInfo.childRule}}</td></tr>
+</table>
+            
+<div id="display_google_map">
+<ng-map zoom="15" center="{{ven_loc}}">
+<marker position="{{ven_loc}}"></marker>
+<directions draggable="true" provideRouteAlternatives="true" panel="directions-panel"></directions>
+</ng-map>
+<div id="directions-panel" style="width: 100%; float:left; overflow: auto; padding: 0px 5px"></div>
+</div>
+</div>
+
+<div id="upco" class="container tab-pane fade"><br>
+<div class="container" ng-show="upco_check">
+<div class="alert alert-warning">
+No records.
+</div>   
+</div>
+<div class="dropdown" ng-show="songkick_data!=undefined">
+<div class="row">           
+<div class="dropdown">
+<button class="btn  btn-secondary dropdown-toggle" type="button" style="background-color:transparent; color:black;" data-toggle="dropdown" id="arr_t">Default
+<span class="caret"></span></button>
+<ul  class="dropdown-menu" id="arr" ng-model="def">
+	<li id="list_order_1"><a id="list_order" style="color:black" href=""ng-click="sort_function('')" >Default</a></li>
+    <li ><a id="list_order"style="color:black" href="" ng-click="sort_function('displayName')">Event Name</a></li>
+    <li ><a id="list_order"style="color:black" href="" ng-click="sort_function('date')">Time</a></li>
+    <li ><a id="list_order"style="color:black" href="" ng-click="sort_function('performance[0].displayName')">Artist</a></li>
+	<li ><a id="list_order"style="color:black" href="" ng-click="sort_function('type')">Type</a></li>
+</ul>
+</div>
+<div class="dropdown ml-2" style="color:black">
+<button class="btn btn-secondary dropdown-toggle" type="button" style="background-color:transparent; color:black;"data-toggle="dropdown" id="asc_desc_t" >Ascending
+<span class="caret"></span></button>
+<ul  class="dropdown-menu" id="asc_desc" >
+<li><a id="list_order"style="color:black" href="" ng-click="asc()">Ascending</a></li>
+<li><a id="list_order" style="color:black" href="" ng-click="dsc()">Descending</a></li>
+ </ul>
+</div></div>
+
+<script>
+$('#arr').on('click', function(x) 
+{
+var $target = $(x.target);
+$target.is('a') && $('#arr_t').text($target.text())
+});
+$('#asc_desc').on('click', function(x) 
+{
+var $target = $(x.target);
+$target.is('a') && $('#asc_desc_t').text($target.text())
+});
+</script>
+<div class="table-responsive">     
+<table class="upco_table" border="1" cellspacing="5" width="100%">
+<tr ng-repeat="x in songkick_data | limitTo:limit| orderBy:sort_by_field:rev" ng-show="songkick_data!=undefined" class="upco_border">
+<td>
+<a id="upco_name" href="{{x.uri}}" target="_blank">{{x.displayName}}</a><br>
+<span style="color:#FF5733;">Artist: {{x.performance[0].displayName}}</span>
+<span style="color: grey;">{{x.start.date | date}} {{x.start.time}}</span><br>
+<span>Type: {{x.type}}</span><br><br>
+</tr>
+</table></div>
+<center><span ng-if="songkick_data.length> 5 && songkick_data.length !=limit">
+<button class="btn btn-primary" ng-click="showMore()">Show more</button>
+</span>
+<span   ng-if="songkick_data.length == limit">
+<button class="btn btn-primary" ng-click="showLess()">Show less</button>
+</span></center>
+</div>
+</div>
+
+
+</div>
+</div>
+</body>
+</html>
